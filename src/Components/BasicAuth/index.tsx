@@ -2,12 +2,10 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import cx from "classnames";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../Reducers/Auth"
-import { AuthUser } from "../../Reducers/Auth"
-import appConfig from "../../Config/App";
 import { useHistory } from "react-router-dom";
+import { RequestService } from "../../Services/Request";
 
 
 const Schema = Yup.object().shape({
@@ -30,11 +28,19 @@ const BasicAuth = () => {
             values,
             { setFieldError, setSubmitting, resetForm }
         ) => {
-            const response = await axios.post<AuthUser>(`${appConfig.apiUrl}/auth/login`, values)
-            dispatch(setUser({ user: response.data }));
-            history.push({
-                pathname: '/secure'
-            });
+            setSubmitting(true)
+            try {
+                const response = await RequestService.post("/auth/login", values)
+                dispatch(setUser({ user: response.data }));
+                history.push({
+                    pathname: '/secure'
+                });
+                setSubmitting(false)
+            } catch (error: any) {
+                setFieldError("email", error.message);
+                setFieldError("password", error.message);
+                setSubmitting(false)
+            }
         },
     });
 
