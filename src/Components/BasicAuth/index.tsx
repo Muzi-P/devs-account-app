@@ -5,7 +5,7 @@ import cx from "classnames";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../Reducers/Auth"
 import { useHistory } from "react-router-dom";
-import { RequestService } from "../../Services/Request";
+import { AuthService } from "../../Services/Auth";
 
 
 const Schema = Yup.object().shape({
@@ -30,7 +30,8 @@ const BasicAuth = () => {
         ) => {
             setSubmitting(true)
             try {
-                const response = await RequestService.post("/auth/login", values)
+                const { email, password } = values
+                const response = await AuthService.login(email, password)
                 dispatch(setUser({ user: response.data }));
                 history.push({
                     pathname: '/secure'
